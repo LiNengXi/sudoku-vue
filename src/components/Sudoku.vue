@@ -36,7 +36,7 @@ import SudokuTimeUse from './SudokuTimeUse';
 import SudokuNumbersCounter from './SudokuNumbersCounter';
 import SudokuLevels from './SudokuLevels';
 
-const INITAL_DIFFICULTY = .5;
+const INITAL_DIFFICULTY = .95;
 const LEN = 9;
 
 function copyBlankSudoku(sudoku) {
@@ -122,42 +122,32 @@ export default {
             $event.target.value = val;
             this.$set(this.sudoku[i], j, { value: val, disabled: false });
 
-            if (this.checkSudokuAll()) {
-                let sudoku = this.sudoku,
-                    sudokuRes = [];
+            let sudoku = this.sudoku,
+                sudokuRes = [];
 
-                for (let i = 0; i < LEN; i++) {
-                    let tmp = [];
-                    for (let j = 0; j < LEN; j++) {
-                        let item = sudoku[i][j]
-                        if (typeof item === 'object') {
-                            tmp[j] = item.value;
-                        } else {
-                            tmp[j] = item;
-                        }
-                    }
-                    sudokuRes.push(tmp);
+            for (let i = 0; i < LEN; i++) {
+                let tmp = [];
+                for (let j = 0; j < LEN; j++) {
+                    let item = sudoku[i][j];
+
+                    tmp.push(typeof item === 'object' ? item.value : item);
                 }
-
-                let isDone = sudokuCore.checkSudoku(sudokuRes);
-
-                if (isDone) {
-                    for (let i = 0; i < LEN; i++) {
-                        for (let j = 0; j < LEN; j++) {
-                            if (typeof sudoku[i][j] === 'object') {
-                                this.$set(this.sudoku[i], j, Object.assign(sudoku[i][j], { disabled: true }));
-                            }
-                        }
-                    }
-                    this.$refs.TimeUse.clearTimeout();
-                    this.isDone = true;
-                }
+                sudokuRes.push(tmp);
             }
-        },
-        checkSudokuAll() {
-            let sudoku = this.sudoku;
 
-            return sudoku.every(row => row.every(content => !!content));
+            let isDone = sudokuCore.checkSudoku(sudokuRes);
+
+            if (isDone) {
+                for (let i = 0; i < LEN; i++) {
+                    for (let j = 0; j < LEN; j++) {
+                        if (typeof sudoku[i][j] === 'object') {
+                            this.$set(this.sudoku[i], j, Object.assign(sudoku[i][j], { disabled: true }));
+                        }
+                    }
+                }
+                this.$refs.TimeUse.clearTimeout();
+                this.isDone = true;
+            }
         },
         restartSudoku() {
             this.sudoku = copyBlankSudoku(this.initialSudoku);

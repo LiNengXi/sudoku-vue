@@ -36,7 +36,7 @@ import SudokuTimeUse from './SudokuTimeUse';
 import SudokuNumbersCounter from './SudokuNumbersCounter';
 import SudokuLevels from './SudokuLevels';
 
-const INITAL_DIFFICULTY = .95;
+const INITAL_DIFFICULTY = .5;
 const LEN = 9;
 
 function copyBlankSudoku(sudoku) {

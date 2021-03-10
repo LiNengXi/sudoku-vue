@@ -8,14 +8,16 @@
 const LEN = 9;
 
 function initialNumbers() {
-  let res = [];
-  for (let i = 1; i <= LEN; i++) {
-    res.push({
-      num: i,
-      isMax: false
-    });
-  }
-  return res;
+    let res = [];
+
+    for (let i = 1; i <= LEN; i++) {
+        res.push({
+            num: i,
+            isMax: false
+        });
+    }
+
+    return res;
 }
 
 export default {
@@ -30,7 +32,6 @@ export default {
             for (let i = 0; i < LEN; i++) {
                 let numsRes = JSON.stringify(this.sudoku).match(new RegExp(i + 1, 'g')),
                     len = numsRes ? numsRes.length : 0;
-
                 numbers[i].isMax = len >= LEN;
             }
 

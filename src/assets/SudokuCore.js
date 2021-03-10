@@ -3,14 +3,15 @@ const NOTREPEATROWS = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
 function loopHandler(cb) {
   for (let i = 0; i < LEN; i++) {
-    for (let j = 0; j < LEN; j++) {
-      cb(i, j);
-    }
+      for (let j = 0; j < LEN; j++) {
+          cb(i, j);
+      }
   }
 }
 
 class SudokuCore {
   constructor() {
+    this.__sudoku = [];
     this.levels = [
       {
         text: '简单',
@@ -32,25 +33,18 @@ class SudokuCore {
   }
 
   rowGenerate() {
-    let sudoku = [];
-
-    for (let i = 0; i < LEN; i++) {
-      let tmp = [];
-
-      for (let j = 1; j <= LEN; j++) {
-        tmp.push('');
-      }
-
-      sudoku.push(tmp);
-    }
-
-    return sudoku;
+    this.__sudoku = Array.apply(null, { length: LEN }).map(() => {
+      return Array.apply(null, { length: LEN }).map(() => {
+        return '';
+      })
+    });
   }
 
   /**
    * 九宫格数组
    */
-  inSquareds(i, j, sudoku) {
+  inSquareds(i, j) {
+    let sudoku = this.__sudoku;
     let x, z;
 
     if (i < 3) {
@@ -70,9 +64,9 @@ class SudokuCore {
     }
 
     let counter = 3,
-      squareds = [];
+        squareds = [];
 
-    for (let len = x + counter; x < len; x++) {
+    for (let len = x + counter; x < len; x++ ) {
       squareds.push(sudoku[x][z]);
       squareds.push(sudoku[x][z + 1]);
       squareds.push(sudoku[x][z + 2]);
@@ -81,23 +75,25 @@ class SudokuCore {
     return squareds;
   }
 
-  inRows(i, j, sudoku) {
-    let row = [];
-
+  inRows(i) {
+    let sudoku = this.__sudoku,
+        row = [];
+    
     for (let x = 0; x < LEN; x++) {
       row.push(sudoku[i][x]);
     }
-
+      
     return row;
   }
 
-  inColumns(i, j, sudoku) {
-    let column = [];
-
+  inColumns(j) {
+    let sudoku = this.__sudoku,
+        column = [];
+    
     for (let x = 0; x < LEN; x++) {
       column.push(sudoku[x][j]);
     }
-
+      
     return column;
   }
 
@@ -105,36 +101,37 @@ class SudokuCore {
     return Math.floor(Math.random() * LEN + 1);
   }
 
-  checkNumber(rand, i, j, sudoku) {
-    if (this.inRows(i, j, sudoku).indexOf(rand) === -1 &&
-        this.inColumns(i, j, sudoku).indexOf(rand) === -1 &&
-        this.inSquareds(i, j, sudoku).indexOf(rand) === -1) {
-
+  checkNumber(rand, i, j) {
+    if (this.inRows(i).indexOf(rand) === -1 &&
+        this.inColumns(j).indexOf(rand) === -1 &&
+        this.inSquareds(i, j).indexOf(rand) === -1) {
+      
       return rand;
     }
 
-    return this.checkNumber(this.getRandomNumber(), i, j, sudoku);
+    return this.checkNumber(this.getRandomNumber(), i, j);
   }
 
   initializeSudoku() {
-    let sudoku = this.rowGenerate();
-    return this.renderSudoku(sudoku);
+    this.rowGenerate();
+    return this.renderSudoku();
   }
 
   /**
    * 因不会算法，通过try catch取巧完成数独的初始化生成
    */
-  renderSudoku(sudoku) {
-    let _self = this;
+  renderSudoku() {
+    let sudoku = this.__sudoku,
+        _self = this;
 
     try {
-      loopHandler(function (i, j) {
-        let num = _self.checkNumber(_self.getRandomNumber(), i, j, sudoku);
+        loopHandler(function (i, j) {
+            let num = _self.checkNumber(_self.getRandomNumber(), i, j);
 
-        sudoku[i][j] = num;
-      });
+            sudoku[i][j] = num;
+        });
 
-      return sudoku;
+        return sudoku;
     } catch (e) {
       return _self.initializeSudoku();
     }
@@ -149,7 +146,7 @@ class SudokuCore {
         sudoku[i][j] = '';
       }
     });
-
+  
     return sudoku;
   }
 
@@ -160,50 +157,50 @@ class SudokuCore {
     for (let i = 0; i < LEN; i++) {
       let rows = sudoku[i].slice();
       rows.sort();
-
+  
       for (let j = 0; j < LEN; j++) {
         if (rows[j] !== NOTREPEATROWS[j]) { return false; }
       }
     }
-
+  
     for (let i = 0; i < LEN; i++) {
       let columns = [];
       for (let j = 0; j < LEN; j++) {
         columns.push(sudoku[j][i]);
       }
       columns.sort();
-
+  
       for (let x = 0; x < LEN; x++) {
         if (columns[x] !== NOTREPEATROWS[x]) { return false; }
       }
     }
-
+  
     let counter = 3,
         squareds = [];
-
+  
     for (let i = 0; i < LEN; i += counter) {
-      for (let j = 0; j < LEN; j += counter) {
-        let tmp = [];
-
-        for (let x = i, len = i + counter; x < len; x++) {
-          for (let z = j, len = j + counter; z < len; z++) {
-            tmp.push(sudoku[x][z]);
-          }
+        for (let j = 0; j < LEN; j += counter) {
+            let tmp = [];
+  
+            for (let x = i, len = i + counter; x < len; x++) {
+                for (let z = j, len = j + counter; z < len; z++) {
+                    tmp.push(sudoku[x][z]);
+                }
+            }
+  
+            squareds.push(tmp);
         }
-
-        squareds.push(tmp);
-      }
     }
-
+  
     for (let i = 0; i < LEN; i++) {
       let nineGrids = squareds[i];
       nineGrids.sort();
-
+      
       for (let j = 0; j < LEN; j++) {
         if (nineGrids[j] !== NOTREPEATROWS[j]) { return false; }
       }
     }
-
+  
     return true;
   }
 

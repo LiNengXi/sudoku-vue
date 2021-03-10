@@ -6,12 +6,16 @@
             <div class="grids-wrap">
                 <ul v-for="(cells, i) in sudoku" :key="i" class="grids">
                     <li v-for="(cell, j) in cells" :key="j" class="cell">
-                        <input type="text" 
-                                :value="typeof cell === 'object' ? cell.value : cell" 
-                                :disabled="typeof cell === 'object' ? cell.disabled : true"
-                                @keydown="keydownHandler(i, j, $event)"
-                                @keyup="keyupHandler(i, j, $event)"
-                                @change="changeHandler(i, j, $event)">
+                        <template v-if="typeof cell === 'number'">
+                            {{ cell }}
+                        </template>
+                        <template v-else>
+                            <input type="number" 
+                                    :value="cell" 
+                                    @keydown="keydownHandler(i, j, $event)"
+                                    @keyup="keyupHandler(i, j, $event)"
+                                    @change="changeHandler(i, j, $event)">
+                        </template>
                     </li>
                 </ul>
             </div>
@@ -24,7 +28,7 @@
         <button @click="restartSudoku">重新此局</button>
         <button @click="resetSudoku">新的一局</button>
 
-        <SudokuNumbersCounter :sudoku="sudoku" ref="numbersCounter" />
+        <SudokuNumbersCounter :sudoku="sudoku" />
     </div>
 </template>
 
@@ -37,29 +41,18 @@ import SudokuNumbersCounter from './SudokuNumbersCounter';
 import SudokuLevels from './SudokuLevels';
 
 const INITAL_DIFFICULTY = .5;
-const LEN = 9;
 
-function copyBlankSudoku(sudoku) {
-    let sudokuRes = [];
-    
-    for (let i = 0; i < LEN; i++) {
-        let tmp = [];
-        for (let j = 0; j < LEN; j++) {
-            tmp.push(sudoku[i][j]);
-        }
-        sudokuRes.push(tmp);
-    }
-
-    return sudokuRes;
+function copySudoku(sudoku) {
+    return sudoku.map(rows => (rows.map(ele => ele)));
 }
 
 export default {
     data() {
-        let sudoku = this.createBlankCell(sudokuCore.initializeSudoku(), INITAL_DIFFICULTY);
+        let sudoku = sudokuCore.createBlankCell(sudokuCore.initializeSudoku(), INITAL_DIFFICULTY);
 
         return {
             sudoku,
-            initialSudoku: copyBlankSudoku(sudoku),
+            initialSudoku: copySudoku(sudoku),
             date: '00 : 00',
             difficulty: INITAL_DIFFICULTY,
             prevDifficulty: INITAL_DIFFICULTY,
@@ -71,26 +64,11 @@ export default {
         this.$refs.TimeUse.timeUse();
     },
     methods: {
-        createBlankCell(sudoku, difficulty) {
-            for (let i = 0; i < LEN; i++) {
-                for (let j = 0; j < LEN; j++) {
-                    if (Math.random() > difficulty) {
-                        sudoku[i][j] = {
-                            value: '',
-                            disabled: false
-                        };
-                    }
-                }
-            }
-
-            return sudoku;
-        },
         keydownHandler(i, j, $event) {
             let keyCode = $event.keyCode;
 
             if (keyCode === 8) {
-                $event.target.value = '';
-                this.$set(this.sudoku[i], j, { value: '', disabled: false });
+                this.$set(this.sudoku[i], j, '');
             }
 
             if (keyCode === 116) {
@@ -108,8 +86,7 @@ export default {
             let keyCode = $event.keyCode;
 
             if (keyCode === 229) {
-                $event.target.value = '';
-                this.$set(this.sudoku[i], j, { value: '', disabled: false });
+                this.$set(this.sudoku[i], j, '');
             }
 
             $event.target.blur();
@@ -117,50 +94,32 @@ export default {
         changeHandler(i, j, $event) {
             let val = $event.target.value.trim();
 
-            val = val && parseInt(val.slice(val.length - 1));
+            val = val && val.slice(val.length - 1);
 
-            $event.target.value = val;
-            this.$set(this.sudoku[i], j, { value: val, disabled: false });
+            this.$set(this.sudoku[i], j, val);
 
-            let sudoku = this.sudoku,
-                sudokuRes = [];
+            let sudokuResult = this.sudoku.map(rows => (rows.map(ele => parseInt(ele))));
 
-            for (let i = 0; i < LEN; i++) {
-                let tmp = [];
-                for (let j = 0; j < LEN; j++) {
-                    let item = sudoku[i][j];
-
-                    tmp.push(typeof item === 'object' ? item.value : item);
-                }
-                sudokuRes.push(tmp);
-            }
-
-            let isDone = sudokuCore.checkSudoku(sudokuRes);
+            let isDone = sudokuCore.checkSudoku(sudokuResult);
 
             if (isDone) {
-                for (let i = 0; i < LEN; i++) {
-                    for (let j = 0; j < LEN; j++) {
-                        if (typeof sudoku[i][j] === 'object') {
-                            this.$set(this.sudoku[i], j, Object.assign(sudoku[i][j], { disabled: true }));
-                        }
-                    }
-                }
                 this.$refs.TimeUse.clearTimeout();
+                this.sudoku = sudokuResult;
                 this.isDone = true;
             }
         },
         restartSudoku() {
-            this.sudoku = copyBlankSudoku(this.initialSudoku);
+            this.sudoku = copySudoku(this.initialSudoku);
             this.date = '00 : 00';
             this.difficulty = this.prevDifficulty;
             this.$refs.TimeUse.timeUse();
             this.isDone = false;
         },
         resetSudoku() {
-            let sudoku = this.createBlankCell(sudokuCore.initializeSudoku(), this.difficulty);
+            let sudoku = sudokuCore.createBlankCell(sudokuCore.initializeSudoku(), this.difficulty);
             
             this.sudoku = sudoku;
-            this.initialSudoku = copyBlankSudoku(sudoku);
+            this.initialSudoku = copySudoku(sudoku);
             this.date = '00 : 00';
             this.prevDifficulty = this.difficulty;
             this.$refs.TimeUse.timeUse();

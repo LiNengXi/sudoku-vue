@@ -46,4 +46,14 @@ li {
 body {
     background-color: #f7f7f7;
 }
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  appearance: none; 
+  margin: 0; 
+}
+/* 火狐 */
+input{
+  -moz-appearance: textfield;
+}
 </style>

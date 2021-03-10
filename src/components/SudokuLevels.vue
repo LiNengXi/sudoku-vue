@@ -24,11 +24,13 @@ export default {
     },
     watch: {
         difficulty: function (newVal) {
-            for (let i = 0, len = this.levels.length; i < len; i++) {
+            let i = this.levels.length - 1;
+
+            do {
                 if (this.levels[i].difficulty === newVal) {
                     this.curIndex = i;
                 }
-            }
+            } while (i--);
         }
     }
 }

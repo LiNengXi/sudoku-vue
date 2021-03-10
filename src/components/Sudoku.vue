@@ -98,7 +98,7 @@ export default {
 
             this.$set(this.sudoku[i], j, val);
 
-            let sudokuResult = this.sudoku.map(rows => (rows.map(ele => parseInt(ele))));
+            let sudokuResult = this.sudoku.map(rows => rows.map(ele => parseInt(ele)));
 
             let isDone = sudokuCore.checkSudoku(sudokuResult);
 

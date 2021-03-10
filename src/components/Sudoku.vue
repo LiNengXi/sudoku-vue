@@ -43,7 +43,7 @@ import SudokuLevels from './SudokuLevels';
 const INITAL_DIFFICULTY = .5;
 
 function copySudoku(sudoku) {
-    return sudoku.map(rows => (rows.map(ele => ele)));
+    return sudoku.map(rows => rows.map(ele => ele));
 }
 
 export default {

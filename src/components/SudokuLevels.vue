@@ -19,7 +19,7 @@ export default {
     methods: {
         chooseLevel(index) {
             this.curIndex = index;
-            this.$emit('takeLevel', this.levels[index].difficulty);
+            this.$emit('update:difficulty', this.levels[index].difficulty);
         }
     },
     watch: {

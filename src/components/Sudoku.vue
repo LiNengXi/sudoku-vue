@@ -21,7 +21,7 @@
             </div>
         </div>
 
-        <SudokuLevels :levels="levels" @takeLevel="chooseLevel" :difficulty="difficulty" />
+        <SudokuLevels :levels="levels" :difficulty.sync="difficulty" />
 
         <SudokuTimeUse ref="TimeUse" />
 
@@ -86,6 +86,7 @@ export default {
             let keyCode = $event.keyCode;
 
             if (keyCode === 229) {
+                $event.target.value = '';
                 this.$set(this.sudoku[i], j, '');
             }
 
@@ -124,9 +125,6 @@ export default {
             this.prevDifficulty = this.difficulty;
             this.$refs.TimeUse.timeUse();
             this.isDone = false;
-        },
-        chooseLevel(difficulty) {
-            this.difficulty = difficulty;
         }
     },
     components: {

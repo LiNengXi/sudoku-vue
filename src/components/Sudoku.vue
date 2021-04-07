@@ -48,7 +48,7 @@ function copySudoku(sudoku) {
 
 export default {
     data() {
-        let sudoku = sudokuCore.createBlankCell(sudokuCore.initializeSudoku(), INITAL_DIFFICULTY);
+        let sudoku = sudokuCore.createBlankCell(sudokuCore.renderSudoku(), INITAL_DIFFICULTY);
 
         return {
             sudoku,
@@ -117,7 +117,7 @@ export default {
             this.isDone = false;
         },
         resetSudoku() {
-            let sudoku = sudokuCore.createBlankCell(sudokuCore.initializeSudoku(), this.difficulty);
+            let sudoku = sudokuCore.createBlankCell(sudokuCore.renderSudoku(), this.difficulty);
             
             this.sudoku = sudoku;
             this.initialSudoku = copySudoku(sudoku);
